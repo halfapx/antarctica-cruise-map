@@ -58,5 +58,3 @@ export const flightsInData: FeatureCollection<Geometry, Record<string, unknown>>
     }
   ]
 };
-
-export default flightsInData;

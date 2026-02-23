@@ -4,5 +4,3 @@ export const flightsOutData: FeatureCollection<Geometry, Record<string, unknown>
   "type": "FeatureCollection",
   "features": []
 };
-
-export default flightsOutData;

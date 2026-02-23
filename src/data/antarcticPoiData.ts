@@ -109,5 +109,3 @@ export const antarcticPoiData: FeatureCollection<Geometry, Record<string, unknow
     },
   ],
 };
-
-export default antarcticPoiData;

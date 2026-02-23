@@ -1,4 +1,4 @@
-export { default as tripData } from "./tripData";
-export { default as flightsInData } from "./flightsInData";
-export { default as flightsOutData } from "./flightsOutData";
-export { default as antarcticPoiData } from "./antarcticPoiData";
+export { tripData } from "./tripData";
+export { flightsInData } from "./flightsInData";
+export { flightsOutData } from "./flightsOutData";
+export { antarcticPoiData } from "./antarcticPoiData";

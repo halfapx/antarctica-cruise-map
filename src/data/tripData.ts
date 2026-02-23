@@ -4212,5 +4212,3 @@ export const tripData: FeatureCollection<Geometry, Record<string, unknown>> = {
     }
   ]
 };
-
-export default tripData;
