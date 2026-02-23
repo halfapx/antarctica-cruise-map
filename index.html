@@ -27,6 +27,36 @@
           <input id="toggle-flat-map" type="checkbox" />
           <span>Flat map</span>
         </label>
+        <div class="flight-editor" aria-label="Flight editor">
+          <p class="flight-editor-title">Edit flights</p>
+          <details open>
+            <summary>Flights in</summary>
+            <label class="editor-row" for="render-flights-in">
+              <span>Render</span>
+              <input id="render-flights-in" type="checkbox" checked />
+            </label>
+            <label class="editor-row" for="flight-in-stop-count">
+              <span>Stopovers</span>
+              <input id="flight-in-stop-count" type="number" min="0" max="8" value="3" />
+            </label>
+            <div id="flight-in-stop-selects" class="flight-stop-selects"></div>
+            <button id="apply-flight-in-editor" type="button" class="reset-view-btn">Apply flights in</button>
+          </details>
+          <details>
+            <summary>Flights out</summary>
+            <label class="editor-row" for="render-flights-out">
+              <span>Render</span>
+              <input id="render-flights-out" type="checkbox" checked />
+            </label>
+            <label class="editor-row" for="flight-out-stop-count">
+              <span>Stopovers</span>
+              <input id="flight-out-stop-count" type="number" min="0" max="8" value="3" />
+            </label>
+            <div id="flight-out-stop-selects" class="flight-stop-selects"></div>
+            <button id="apply-flight-out-editor" type="button" class="reset-view-btn">Apply flights out</button>
+          </details>
+          <p id="flight-editor-status" class="flight-editor-status" aria-live="polite"></p>
+        </div>
         <button id="reset-view" type="button" class="reset-view-btn">Reset view</button>
         </div>
       </details>

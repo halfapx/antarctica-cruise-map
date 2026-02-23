@@ -15,7 +15,6 @@ export const flightsInStops: FlightStop[] = [
     airportCode: "PUQ",
     coordinates: [-70.8546, -53.0026],
   },
-  { name: "Teniente R. Marsh Airport", country: "Antarctica", airportCode: "SCRM", coordinates: [-58.9867, -62.1906] },
 ];
 
 export const flightsInData = buildFlightCollection("flight", flightsInStops);
