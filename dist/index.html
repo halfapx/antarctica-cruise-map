@@ -5,13 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>Through the Lens — Antarctica Trip</title>
+    <script type="module" crossorigin src="/assets/index-BPe7g8Bc.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-EG81ekeH.css">
   </head>
   <body>
     <div id="app">
-      <details open class="panel">
-        <summary>Through The Lens</summary>
-        <div>
-          <div class="legend">
+      <aside class="panel">
+        <h1>Through the Lens</h1>
+        <p class="subtitle">Antarctica voyage map</p>
+        <div class="legend">
           <div class="legend-item"><span class="swatch track"></span> Track</div>
           <div class="legend-item legend-flight"><span class="swatch flight-in"></span> Flights in</div>
           <!-- <div class="legend-item legend-flight"><span class="swatch flight-out"></span> Flights out</div> -->
@@ -24,10 +26,8 @@
           <span>Show flights</span>
         </label>
         <button id="reset-view" type="button" class="reset-view-btn">Reset view</button>
-        </div>
-      </details>
+      </aside>
       <div id="map"></div>
-    </div>
-    <script type="module" src="/src/main.ts"></script>
+    </div>
   </body>
   </html>

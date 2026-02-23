@@ -49,13 +49,18 @@ body {
   color: #fff;
   padding: 12px 14px;
   border-radius: 10px;
-  width: 220px;
+  max-width: 220px;
+  width: 70%;
   backdrop-filter: blur(6px);
 }
 
-.panel h1 {
-  margin: 0;
-  font-size: 1.05rem;
+.panel summary {
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.panel[open] summary {
+  margin-bottom: 1em;
 }
 
 .subtitle {

@@ -1,0 +1,62 @@
+import type { FeatureCollection, Geometry } from "geojson";
+
+export const flightsInData: FeatureCollection<Geometry, Record<string, unknown>> = {
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "leg": "flight"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -70.8546,
+            -53.0026
+          ],
+          [
+            -58.9867,
+            -62.1906
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "point_type": "flight_origin",
+        "Feature_type": "flight_origin",
+        "Name": "Presidente Carlos Ibáñez del Campo International Airport",
+        "Country": "Chile",
+        "Airport_code": "PUQ"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -70.8546,
+          -53.0026
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "point_type": "flight_destination",
+        "Feature_type": "flight_destination",
+        "Name": "Teniente R. Marsh Airport",
+        "Country": "Antarctica",
+        "Airport_code": "SCRM"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -58.9867,
+          -62.1906
+        ]
+      }
+    }
+  ]
+};
+
+export default flightsInData;
