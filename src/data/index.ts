@@ -1,4 +1,5 @@
 export { tripData } from "./tripData";
-export { flightsInData } from "./flightsInData";
-export { flightsOutData } from "./flightsOutData";
+export { flightsInData, flightsInStops } from "./flightsInData";
+export { flightsOutData, flightsOutStops } from "./flightsOutData";
+export { charterFlightData, charterFlightStops } from "./charterFlight";
 export { antarcticPoiData } from "./antarcticPoiData";

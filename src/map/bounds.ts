@@ -64,6 +64,7 @@ export const buildTripAndAllBounds = (
   tripData: FeatureCollection<Geometry, Record<string, unknown>>,
   flightsInData: FeatureCollection<Geometry, Record<string, unknown>>,
   flightsOutData: FeatureCollection<Geometry, Record<string, unknown>>,
+  ...additionalCollections: FeatureCollection<Geometry, Record<string, unknown>>[]
 ) => {
   const tripBounds = createBoundsAccumulator();
   const allBounds = createBoundsAccumulator();
@@ -85,6 +86,16 @@ export const buildTripAndAllBounds = (
     },
     allBounds,
   );
+
+  additionalCollections.forEach((collection) => {
+    extendBoundsFromFeatureCollection(
+      {
+        ...collection,
+        features: collection.features.filter((feature) => feature.geometry?.type === "LineString"),
+      },
+      allBounds,
+    );
+  });
 
   return { tripBounds, allBounds };
 };

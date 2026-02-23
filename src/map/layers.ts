@@ -12,6 +12,7 @@ const POI_LABEL_MIN_ZOOM = 6.5;
 
 export const FLIGHT_LAYER_IDS = [
   "flight-track",
+  "charter-flight-track",
   "flight-points",
   "flight-point-labels",
   "flight-out-track",
@@ -172,6 +173,7 @@ export const addMapLayers = (map: Map, mapColors: MapColors) => {
   };
 
   addFlightTrackLayer("flight-track", "flight", mapColors.flightInLine);
+  addFlightTrackLayer("charter-flight-track", "charter-flight", mapColors.charterFlightLine);
   addFlightPointLayer("flight-points", "flight", mapColors.flightInLine, mapColors.flightInStopover);
 
   addPointLabelLayer("flight-point-labels", "flight", FLIGHT_LABEL_MIN_ZOOM);

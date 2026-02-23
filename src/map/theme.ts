@@ -1,6 +1,7 @@
 export type MapColors = {
   track: string;
   flightInLine: string;
+  charterFlightLine: string;
   flightInStopover: string;
   flightOutLine: string;
   flightOutStopover: string;
@@ -20,6 +21,7 @@ export type MapColors = {
 export const mapColors: MapColors = {
   track: "#0ea5e9",
   flightInLine: "#8b5cf6",
+  charterFlightLine: "#a855f7",
   flightInStopover: "#c4b5fd",
   flightOutLine: "#6366f1",
   flightOutStopover: "#818cf8",

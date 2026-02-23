@@ -2,12 +2,11 @@ import { Map, NavigationControl, setWorkerUrl } from "maplibre-gl/dist/maplibre-
 import "maplibre-gl/dist/maplibre-gl.css";
 import "./style.css";
 import maplibreglWorkerUrl from "maplibre-gl/dist/maplibre-gl-csp-worker-dev.js?url";
-import { antarcticPoiData, flightsInData, flightsOutData, tripData } from "./data";
+import { antarcticPoiData, charterFlightData, flightsInData, flightsOutData, tripData } from "./data";
 import {
   applyColorVariables,
   addMapLayers,
   buildTripAndAllBounds,
-  FLIGHT_LAYER_IDS,
   fitMapToBounds,
   INTERACTIVE_POINT_LAYER_IDS,
   mapColors,
@@ -21,9 +20,7 @@ setWorkerUrl(maplibreglWorkerUrl);
 applyColorVariables(mapColors);
 
 const resetViewButton = document.getElementById("reset-view");
-const flightsToggle = document.getElementById("toggle-flights") as HTMLInputElement | null;
 const flatMapToggle = document.getElementById("toggle-flat-map") as HTMLInputElement | null;
-const flightLegendItems = Array.from(document.querySelectorAll(".legend-flight")) as HTMLElement[];
 
 const minimapContainer = document.createElement("div");
 minimapContainer.id = "minimap";
@@ -60,6 +57,7 @@ map.addControl(new NavigationControl(), "top-right");
 map.on("load", () => {
   const data = tripData;
   const flightsIn = flightsInData;
+  const charterFlight = charterFlightData;
   const flightsOut = flightsOutData;
 
   const syncProjectionToToggle = (resetFlatRotation: boolean) => {
@@ -91,6 +89,7 @@ map.on("load", () => {
 
   map.addSource("trip", { type: "geojson", data });
   map.addSource("flight", { type: "geojson", data: flightsIn });
+  map.addSource("charter-flight", { type: "geojson", data: charterFlight });
   map.addSource("flight-out", { type: "geojson", data: flightsOut });
   map.addSource("antarctic-pois", { type: "geojson", data: antarcticPoiData });
 
@@ -98,7 +97,7 @@ map.on("load", () => {
 
   const interactivePointLayers = [...INTERACTIVE_POINT_LAYER_IDS];
 
-  const pointInteractions = setupPointInteractions(map, interactivePointLayers, POINT_CLICK_ZOOM_BY_LAYER);
+  setupPointInteractions(map, interactivePointLayers, POINT_CLICK_ZOOM_BY_LAYER);
 
   // Temporary: log coordinates on click for easier POI placement
   // map.on("click", (event) => {
@@ -106,28 +105,10 @@ map.on("load", () => {
   //   console.log(`[${lng.toFixed(7)}, ${lat.toFixed(7)}],`);
   // });
 
-  const setFlightLayersVisibility = (isVisible: boolean) => {
-    const visibility: "visible" | "none" = isVisible ? "visible" : "none";
-    FLIGHT_LAYER_IDS.forEach((layerId) => {
-      if (map.getLayer(layerId)) {
-        map.setLayoutProperty(layerId, "visibility", visibility);
-      }
-    });
-
-    flightLegendItems.forEach((item) => {
-      item.style.display = isVisible ? "flex" : "none";
-    });
-
-    if (!isVisible) {
-      pointInteractions.clearPinnedPopup();
-    }
-  };
-  const { tripBounds, allBounds } = buildTripAndAllBounds(data, flightsIn, flightsOut);
-
-  const getActiveBounds = () => (flightsToggle?.checked === false ? tripBounds : allBounds);
+  const { allBounds } = buildTripAndAllBounds(data, flightsIn, flightsOut, charterFlight);
 
   const fitToActiveBounds = (duration: number) => {
-    return fitMapToBounds(map, getActiveBounds(), duration);
+    return fitMapToBounds(map, allBounds, duration);
   };
 
   const resetToInitialView = () => {
@@ -147,14 +128,6 @@ map.on("load", () => {
 
   if (resetViewButton) {
     resetViewButton.addEventListener("click", resetToInitialView);
-  }
-
-  if (flightsToggle) {
-    setFlightLayersVisibility(flightsToggle.checked);
-    flightsToggle.addEventListener("change", () => {
-      setFlightLayersVisibility(flightsToggle.checked);
-      fitToActiveBounds(700);
-    });
   }
 
   if (flatMapToggle) {
