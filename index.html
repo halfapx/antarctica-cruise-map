@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>Through the Lens — Antarctica Trip</title>
+  </head>
+  <body>
+    <div id="app">
+      <aside class="panel">
+        <h1>Through the Lens</h1>
+        <p class="subtitle">Antarctica voyage map</p>
+        <div class="legend">
+          <div class="legend-item"><span class="swatch track"></span> Track</div>
+          <div class="legend-item"><span class="swatch flight-in"></span> Flights in</div>
+          <div class="legend-item"><span class="swatch flight-out"></span> Flights out</div>
+          <div class="legend-item"><span class="swatch stop"></span> Port calls</div>
+          <div class="legend-item"><span class="swatch start"></span> Start</div>
+          <div class="legend-item"><span class="swatch end"></span> End</div>
+        </div>
+        <button id="reset-view" type="button" class="reset-view-btn">Reset view</button>
+      </aside>
+      <div id="map"></div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+  </html>
