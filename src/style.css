@@ -119,7 +119,7 @@ body {
 
 .swatch.track {
   border-radius: 2px;
-  background: #38bdf8;
+  background: var(--color-track);
 }
 
 .swatch.flight-in,
@@ -130,23 +130,27 @@ body {
 }
 
 .swatch.flight-in {
-  border-top: 2px dashed #a855f7;
+  border-top: 2px dashed var(--color-flight-in-line);
 }
 
 .swatch.flight-out {
-  border-top: 2px dashed #7e22ce;
+  border-top: 2px dashed var(--color-flight-out-line);
 }
 
 .swatch.stop {
-  background: #f59e0b;
+  background: var(--color-port-call);
+}
+
+.swatch.poi {
+  background: var(--color-poi);
 }
 
 .swatch.start {
-  background: #22c55e;
+  background: var(--color-start);
 }
 
 .swatch.end {
-  background: #ef4444;
+  background: var(--color-end);
 }
 
 .maplibregl-popup-content {

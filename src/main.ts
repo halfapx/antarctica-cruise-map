@@ -8,6 +8,29 @@ import { antarcticPoiData, flightsInData, flightsOutData, tripData } from "./dat
 
 setWorkerUrl(maplibreglWorkerUrl);
 
+const mapColors = {
+  track: "#0ea5e9",
+  flightInLine: "#8b5cf6",
+  flightOutLine: "#6366f1",
+  portCall: "#f59e0b",
+  poi: "#14b8a6",
+  start: "#22c55e",
+  end: "#ef4444",
+} as const;
+
+const applyColorVariables = () => {
+  const rootStyle = document.documentElement.style;
+  rootStyle.setProperty("--color-track", mapColors.track);
+  rootStyle.setProperty("--color-flight-in-line", mapColors.flightInLine);
+  rootStyle.setProperty("--color-flight-out-line", mapColors.flightOutLine);
+  rootStyle.setProperty("--color-port-call", mapColors.portCall);
+  rootStyle.setProperty("--color-poi", mapColors.poi);
+  rootStyle.setProperty("--color-start", mapColors.start);
+  rootStyle.setProperty("--color-end", mapColors.end);
+};
+
+applyColorVariables();
+
 const isPointCoordinates = (value: unknown): value is [number, number] =>
   Array.isArray(value) && value.length >= 2 && typeof value[0] === "number" && typeof value[1] === "number";
 
@@ -181,22 +204,58 @@ map.on("load", () => {
   map.addSource("flight-out", { type: "geojson", data: flightOutData });
   map.addSource("antarctic-pois", { type: "geojson", data: antarcticPoiData });
 
-  map.addLayer({
-    id: "flight-track",
-    type: "line",
-    source: "flight",
-    filter: ["==", ["geometry-type"], "LineString"],
-    layout: {
-      "line-cap": "round",
-      "line-join": "round",
-    },
-    paint: {
-      "line-color": "#a855f7",
-      "line-width": ["interpolate", ["linear"], ["zoom"], 2, 1.5, 6, 3, 10, 4],
-      "line-opacity": 0.9,
-      "line-dasharray": [2, 1.5],
-    },
-  });
+  const roundedLineLayout = {
+    "line-cap": "round",
+    "line-join": "round",
+  } as const;
+
+  const flightTrackBasePaint = {
+    "line-width": ["interpolate", ["linear"], ["zoom"], 2, 1.5, 6, 3, 10, 4],
+    "line-opacity": 0.9,
+    "line-dasharray": [2, 1.5],
+  } as const;
+
+  const addFlightTrackLayer = (id: string, source: string, color: string) => {
+    map.addLayer({
+      id,
+      type: "line",
+      source,
+      filter: ["==", ["geometry-type"], "LineString"],
+      layout: roundedLineLayout,
+      paint: {
+        "line-color": color,
+        ...flightTrackBasePaint,
+      },
+    });
+  };
+
+  const pointLabelBaseLayout = {
+    "text-field": ["coalesce", ["get", "Name"], ["get", "Port_Name"], ""],
+    "text-size": ["interpolate", ["linear"], ["zoom"], 8, 10, 12, 12],
+    "text-anchor": "left",
+    "text-offset": [0.9, 0],
+    "text-allow-overlap": false,
+  } as const;
+
+  const pointLabelBasePaint = {
+    "text-color": "#111827",
+    "text-halo-color": "#ffffff",
+    "text-halo-width": 1.2,
+  } as const;
+
+  const addPointLabelLayer = (id: string, source: string, minzoom: number) => {
+    map.addLayer({
+      id,
+      type: "symbol",
+      source,
+      filter: ["==", ["geometry-type"], "Point"],
+      minzoom,
+      layout: pointLabelBaseLayout,
+      paint: pointLabelBasePaint,
+    });
+  };
+
+  addFlightTrackLayer("flight-track", "flight", mapColors.flightInLine);
 
   map.addLayer({
     id: "flight-points",
@@ -207,10 +266,10 @@ map.on("load", () => {
       "circle-color": [
         "case",
         ["==", ["get", "point_type"], "flight_origin"],
-        "#7c3aed",
+        mapColors.flightInLine,
         ["==", ["get", "point_type"], "flight_stopover"],
-        "#c084fc",
-        "#a855f7",
+        "#c4b5fd",
+        mapColors.flightInLine,
       ],
       "circle-radius": 5,
       "circle-stroke-color": "#ffffff",
@@ -218,42 +277,9 @@ map.on("load", () => {
     },
   });
 
-  map.addLayer({
-    id: "flight-point-labels",
-    type: "symbol",
-    source: "flight",
-    filter: ["==", ["geometry-type"], "Point"],
-    minzoom: 6.8,
-    layout: {
-      "text-field": ["coalesce", ["get", "Name"], ["get", "Port_Name"], ""],
-      "text-size": ["interpolate", ["linear"], ["zoom"], 8, 10, 12, 12],
-      "text-anchor": "left",
-      "text-offset": [0.9, 0],
-      "text-allow-overlap": false,
-    },
-    paint: {
-      "text-color": "#111827",
-      "text-halo-color": "#ffffff",
-      "text-halo-width": 1.2,
-    },
-  });
+  addPointLabelLayer("flight-point-labels", "flight", 6.8);
 
-  map.addLayer({
-    id: "flight-out-track",
-    type: "line",
-    source: "flight-out",
-    filter: ["==", ["geometry-type"], "LineString"],
-    layout: {
-      "line-cap": "round",
-      "line-join": "round",
-    },
-    paint: {
-      "line-color": "#7e22ce",
-      "line-width": ["interpolate", ["linear"], ["zoom"], 2, 1.5, 6, 3, 10, 4],
-      "line-opacity": 0.9,
-      "line-dasharray": [2, 1.5],
-    },
-  });
+  addFlightTrackLayer("flight-out-track", "flight-out", mapColors.flightOutLine);
 
   map.addLayer({
     id: "flight-out-points",
@@ -264,10 +290,10 @@ map.on("load", () => {
       "circle-color": [
         "case",
         ["==", ["get", "point_type"], "flight_origin"],
-        "#6d28d9",
+        mapColors.flightOutLine,
         ["==", ["get", "point_type"], "flight_stopover"],
-        "#a855f7",
-        "#c084fc",
+        "#818cf8",
+        mapColors.flightOutLine,
       ],
       "circle-radius": 5,
       "circle-stroke-color": "#ffffff",
@@ -275,37 +301,16 @@ map.on("load", () => {
     },
   });
 
-  map.addLayer({
-    id: "flight-out-point-labels",
-    type: "symbol",
-    source: "flight-out",
-    filter: ["==", ["geometry-type"], "Point"],
-    minzoom: 6.8,
-    layout: {
-      "text-field": ["coalesce", ["get", "Name"], ["get", "Port_Name"], ""],
-      "text-size": ["interpolate", ["linear"], ["zoom"], 8, 10, 12, 12],
-      "text-anchor": "left",
-      "text-offset": [0.9, 0],
-      "text-allow-overlap": false,
-    },
-    paint: {
-      "text-color": "#111827",
-      "text-halo-color": "#ffffff",
-      "text-halo-width": 1.2,
-    },
-  });
+  addPointLabelLayer("flight-out-point-labels", "flight-out", 6.8);
 
   map.addLayer({
     id: "track",
     type: "line",
     source: "trip",
     filter: ["==", ["geometry-type"], "LineString"],
-    layout: {
-      "line-cap": "round",
-      "line-join": "round",
-    },
+    layout: roundedLineLayout,
     paint: {
-      "line-color": "#38bdf8",
+      "line-color": mapColors.track,
       "line-width": ["interpolate", ["linear"], ["zoom"], 2, 2.5, 6, 4, 10, 6],
       "line-opacity": 0.95,
     },
@@ -317,7 +322,7 @@ map.on("load", () => {
     source: "trip",
     filter: ["==", ["get", "Feature_type"], "port_call"],
     paint: {
-      "circle-color": "#f59e0b",
+      "circle-color": mapColors.portCall,
       "circle-radius": 4,
       "circle-stroke-color": "#111827",
       "circle-stroke-width": 1,
@@ -342,39 +347,21 @@ map.on("load", () => {
     source: "trip",
     filter: ["any", ["==", ["get", "Feature_type"], "start"], ["==", ["get", "Feature_type"], "end"]],
     paint: {
-      "circle-color": ["case", ["==", ["get", "Feature_type"], "start"], "#22c55e", "#ef4444"],
+      "circle-color": ["case", ["==", ["get", "Feature_type"], "start"], mapColors.start, mapColors.end],
       "circle-radius": 7,
       "circle-stroke-color": "#fff",
       "circle-stroke-width": 1.5,
     },
   });
 
-  map.addLayer({
-    id: "trip-point-labels",
-    type: "symbol",
-    source: "trip",
-    filter: ["==", ["geometry-type"], "Point"],
-    minzoom: 5.2,
-    layout: {
-      "text-field": ["coalesce", ["get", "Name"], ["get", "Port_Name"], ""],
-      "text-size": ["interpolate", ["linear"], ["zoom"], 8, 10, 12, 12],
-      "text-anchor": "left",
-      "text-offset": [0.9, 0],
-      "text-allow-overlap": false,
-    },
-    paint: {
-      "text-color": "#111827",
-      "text-halo-color": "#ffffff",
-      "text-halo-width": 1.2,
-    },
-  });
+  addPointLabelLayer("trip-point-labels", "trip", 5.2);
 
   map.addLayer({
     id: "antarctic-poi-pins",
     type: "circle",
     source: "antarctic-pois",
     paint: {
-      "circle-color": "#dc2626",
+      "circle-color": mapColors.poi,
       "circle-radius": 4,
       "circle-stroke-color": "#111827",
       "circle-stroke-width": 1,
@@ -439,6 +426,19 @@ map.on("load", () => {
     return `<strong>${title}</strong><br/>Type: ${type}<br/>Country: ${country}${airportCode}`;
   };
 
+  type PointFeature = Feature<Geometry, Record<string, unknown>> & {
+    geometry: { type: "Point"; coordinates: [number, number] };
+  };
+
+  const getPointFeatureFromEvent = (event: { features?: unknown[] }) => {
+    const feature = event.features?.[0] as Feature<Geometry, Record<string, unknown>> | undefined;
+    if (!feature || feature.geometry?.type !== "Point" || !isPointCoordinates(feature.geometry.coordinates)) {
+      return undefined;
+    }
+
+    return feature as PointFeature;
+  };
+
   const showPopupForPointFeature = (feature: Feature<Geometry, Record<string, unknown>>) => {
     if (!feature || feature.geometry?.type !== "Point" || !isPointCoordinates(feature.geometry.coordinates)) {
       return;
@@ -454,10 +454,34 @@ map.on("load", () => {
     "flight-out-points",
     "antarctic-poi-pins",
   ];
+
+  const focusPointFeature = (feature: PointFeature, zoom: number) => {
+    isPopupPinned = true;
+    showPopupForPointFeature(feature);
+
+    map.easeTo({
+      center: feature.geometry.coordinates,
+      zoom,
+      duration: 900,
+      essential: true,
+    });
+  };
+
+  const registerPointClickHandler = (layerId: string, zoom: number) => {
+    map.on("click", layerId, (event) => {
+      const feature = getPointFeatureFromEvent(event);
+      if (!feature) {
+        return;
+      }
+
+      focusPointFeature(feature, zoom);
+    });
+  };
+
   interactivePointLayers.forEach((layerId) => {
     map.on("mouseenter", layerId, (event) => {
       map.getCanvas().style.cursor = "pointer";
-      const feature = event.features?.[0] as unknown as Feature<Geometry, Record<string, unknown>> | undefined;
+      const feature = getPointFeatureFromEvent(event);
       if (!feature || isPopupPinned) {
         return;
       }
@@ -472,73 +496,11 @@ map.on("load", () => {
     });
   });
 
-  map.on("click", "port-calls-hit", (event) => {
-    const feature = event.features?.[0] as unknown as Feature<Geometry, Record<string, unknown>> | undefined;
-    if (!feature || feature.geometry?.type !== "Point" || !isPointCoordinates(feature.geometry.coordinates)) {
-      return;
-    }
-
-    isPopupPinned = true;
-    showPopupForPointFeature(feature);
-
-    map.easeTo({
-      center: feature.geometry.coordinates,
-      zoom: 11.5,
-      duration: 900,
-      essential: true,
-    });
-  });
-
-  map.on("click", "flight-points", (event) => {
-    const feature = event.features?.[0] as unknown as Feature<Geometry, Record<string, unknown>> | undefined;
-    if (!feature || feature.geometry?.type !== "Point" || !isPointCoordinates(feature.geometry.coordinates)) {
-      return;
-    }
-
-    isPopupPinned = true;
-    showPopupForPointFeature(feature);
-
-    map.easeTo({
-      center: feature.geometry.coordinates,
-      zoom: 8.5,
-      duration: 900,
-      essential: true,
-    });
-  });
-
-  map.on("click", "flight-out-points", (event) => {
-    const feature = event.features?.[0] as unknown as Feature<Geometry, Record<string, unknown>> | undefined;
-    if (!feature || feature.geometry?.type !== "Point" || !isPointCoordinates(feature.geometry.coordinates)) {
-      return;
-    }
-
-    isPopupPinned = true;
-    showPopupForPointFeature(feature);
-
-    map.easeTo({
-      center: feature.geometry.coordinates,
-      zoom: 8.5,
-      duration: 900,
-      essential: true,
-    });
-  });
-
-  map.on("click", "antarctic-poi-pins", (event) => {
-    const feature = event.features?.[0] as unknown as Feature<Geometry, Record<string, unknown>> | undefined;
-    if (!feature || feature.geometry?.type !== "Point" || !isPointCoordinates(feature.geometry.coordinates)) {
-      return;
-    }
-
-    isPopupPinned = true;
-    showPopupForPointFeature(feature);
-
-    map.easeTo({
-      center: feature.geometry.coordinates,
-      zoom: 11.5,
-      duration: 900,
-      essential: true,
-    });
-  });
+  registerPointClickHandler("port-calls-hit", 11.5);
+  registerPointClickHandler("flight-points", 8.5);
+  registerPointClickHandler("flight-out-points", 8.5);
+  registerPointClickHandler("antarctic-poi-pins", 11.5);
+  registerPointClickHandler("start-end", 10);
 
   map.on("click", (event) => {
     const featuresAtClick = map.queryRenderedFeatures(event.point, {
