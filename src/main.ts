@@ -79,6 +79,12 @@ map.on("load", () => {
 
   const pointInteractions = setupPointInteractions(map, interactivePointLayers, POINT_CLICK_ZOOM_BY_LAYER);
 
+  // Temporary: log coordinates on click for easier POI placement
+  // map.on("click", (event) => {
+  //   const { lng, lat } = event.lngLat;
+  //   console.log(`[${lng.toFixed(7)}, ${lat.toFixed(7)}],`);
+  // });
+
   const setFlightLayersVisibility = (isVisible: boolean) => {
     const visibility: "visible" | "none" = isVisible ? "visible" : "none";
     FLIGHT_LAYER_IDS.forEach((layerId) => {

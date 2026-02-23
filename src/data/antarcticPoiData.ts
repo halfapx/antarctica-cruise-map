@@ -5,6 +5,14 @@ export const antarcticPoiData: FeatureCollection<Geometry, Record<string, unknow
   features: [
     {
       type: "Feature",
+      properties: { Name: "Half-Moon Island" },
+      geometry: {
+        type: "Point",
+        coordinates:[-59.9227943, -62.5885178],
+      },
+    },
+    {
+      type: "Feature",
       properties: { Name: "Cuverville Island" },
       geometry: {
         type: "Point",

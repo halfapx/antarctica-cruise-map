@@ -23,10 +23,12 @@ const getPointFeatureFromEvent = (event: LayerEvent) => {
 const getPopupHtml = (feature: Feature<Geometry, Record<string, unknown>>) => {
   const props = feature.properties ?? {};
   const title = (props.Name as string) || (props.Port_Name as string) || "Stop";
-  const type = (props.Feature_type as string) || (props.point_type as string) || "point";
-  const country = (props.Country as string) || (props.Country_code as string) || "Unknown";
+  const type = (props.Feature_type as string) || (props.point_type as string) || "";
+  const typeHtml = type ? `<br/>Type: ${type}` : "";
+  const country = (props.Country as string) || (props.Country_code as string) || "";
+  const countryHtml = country ? `<br/>Country: ${country}` : "";
   const airportCode = props.Airport_code ? `<br/>Airport: ${props.Airport_code}` : "";
-  return `<strong>${title}</strong><br/>Type: ${type}<br/>Country: ${country}${airportCode}`;
+  return `<strong>${title}</strong>${typeHtml}${countryHtml}${airportCode}`;
 };
 
 const showPopupForPointFeature = (
