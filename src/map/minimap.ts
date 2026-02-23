@@ -6,21 +6,21 @@ type SetupMinimapAndProjectionOptions = {
   minimap: Map;
   minimapContainer: HTMLElement;
   mapColors: MapColors;
-  flatMapZoomThreshold?: number;
   minimapZoomThreshold?: number;
 };
+
+export type ProjectionMode = "globe" | "mercator";
 
 export const setupMinimapAndProjection = ({
   map,
   minimap,
   minimapContainer,
   mapColors,
-  flatMapZoomThreshold = 5.25,
   minimapZoomThreshold = 5.5,
 }: SetupMinimapAndProjectionOptions) => {
-  let currentProjectionType: "globe" | "mercator" | null = null;
+  let currentProjectionType: ProjectionMode | null = null;
 
-  const setMapProjection = (projectionType: "globe" | "mercator") => {
+  const setMapProjection = (projectionType: ProjectionMode) => {
     if (typeof map.setProjection !== "function" || currentProjectionType === projectionType) {
       return;
     }
@@ -36,11 +36,6 @@ export const setupMinimapAndProjection = ({
         currentProjectionType = null;
       }
     }
-  };
-
-  const syncProjectionToZoom = () => {
-    const projectionType = map.getZoom() >= flatMapZoomThreshold ? "mercator" : "globe";
-    setMapProjection(projectionType);
   };
 
   const isAntarcticPeninsulaFocus = () => {
@@ -137,7 +132,7 @@ export const setupMinimapAndProjection = ({
   }
 
   return {
-    syncProjectionToZoom,
+    setMapProjection,
     syncMinimapState,
     syncMinimapVisibility,
   };

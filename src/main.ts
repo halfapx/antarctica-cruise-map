@@ -22,6 +22,7 @@ applyColorVariables(mapColors);
 
 const resetViewButton = document.getElementById("reset-view");
 const flightsToggle = document.getElementById("toggle-flights") as HTMLInputElement | null;
+const flatMapToggle = document.getElementById("toggle-flat-map") as HTMLInputElement | null;
 const flightLegendItems = Array.from(document.querySelectorAll(".legend-flight")) as HTMLElement[];
 
 const minimapContainer = document.createElement("div");
@@ -47,7 +48,7 @@ const minimap = new Map({
   attributionControl: false,
 });
 
-const { syncProjectionToZoom, syncMinimapState, syncMinimapVisibility } = setupMinimapAndProjection({
+const { setMapProjection, syncMinimapState, syncMinimapVisibility } = setupMinimapAndProjection({
   map,
   minimap,
   minimapContainer,
@@ -61,9 +62,29 @@ map.on("load", () => {
   const flightsIn = flightsInData;
   const flightsOut = flightsOutData;
 
-  syncProjectionToZoom();
-  map.on("zoom", syncProjectionToZoom);
-  map.on("styledata", syncProjectionToZoom);
+  const syncProjectionToToggle = (resetFlatRotation: boolean) => {
+    const isFlatMap = flatMapToggle?.checked === true;
+    setMapProjection(isFlatMap ? "mercator" : "globe");
+
+    if (!isFlatMap || !resetFlatRotation) {
+      return;
+    }
+
+    const needsReset = Math.abs(map.getBearing()) > 0.01 || Math.abs(map.getPitch()) > 0.01;
+    if (!needsReset) {
+      return;
+    }
+
+    map.easeTo({
+      bearing: 0,
+      pitch: 0,
+      duration: 450,
+      essential: true,
+    });
+  };
+
+  syncProjectionToToggle(false);
+  map.on("styledata", () => syncProjectionToToggle(false));
 
   map.on("move", syncMinimapState);
   map.on("zoom", syncMinimapState);
@@ -134,6 +155,10 @@ map.on("load", () => {
       setFlightLayersVisibility(flightsToggle.checked);
       fitToActiveBounds(700);
     });
+  }
+
+  if (flatMapToggle) {
+    flatMapToggle.addEventListener("change", () => syncProjectionToToggle(true));
   }
 
   syncMinimapVisibility();
