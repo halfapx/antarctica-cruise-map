@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>Through the Lens — Antarctica Trip</title>
-    <script type="module" crossorigin src="/assets/index-M49mElG0.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-CCdQa2GK.css">
+    <script type="module" crossorigin src="/assets/index-Xl7gvjHG.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-B3QXB1on.css">
   </head>
   <body>
     <div id="app">
@@ -15,53 +15,67 @@
         <div>
           <p>Antarctic Peninsula Trip 2026</p>
           <div class="legend">
-          <div class="legend-item"><span class="swatch track"></span> Cruise Route</div>
-          <div class="legend-item legend-flight"><span class="swatch flight-in"></span> Flights in</div>
-          <div class="legend-item"><span class="swatch charter-flight"></span> Charter flight</div>
-          <div class="legend-item legend-flight"><span class="swatch flight-out"></span> Flights out</div>
-          <!-- <div class="legend-item legend-flight"><span class="swatch flight-out"></span> Flights out</div> -->
-          <div class="legend-item"><span class="swatch stop"></span> Port calls</div>
-          <div class="legend-item"><span class="swatch poi"></span> Antarctic POIs</div>
-          <div class="legend-item"><span class="swatch start"></span> Start</div>
-          <div class="legend-item"><span class="swatch end"></span> End</div>
-        </div>
-        <label class="toggle-row" for="toggle-flat-map">
-          <input id="toggle-flat-map" type="checkbox" />
-          <span>Flat map</span>
-        </label>
-        <div class="flight-editor" aria-label="Flight editor">
-          <p class="flight-editor-title">Edit flights</p>
-          <details open>
-            <summary>Flights in</summary>
-            <label class="editor-row" for="render-flights-in">
-              <span>Render</span>
-              <input id="render-flights-in" type="checkbox" checked />
-            </label>
-            <label class="editor-row" for="flight-in-stop-count">
-              <span>Stopovers</span>
-              <input id="flight-in-stop-count" type="number" min="0" max="8" value="3" />
-            </label>
-            <div id="flight-in-stop-selects" class="flight-stop-selects"></div>
-            <button id="apply-flight-in-editor" type="button" class="reset-view-btn">Apply flights in</button>
-          </details>
-          <details>
-            <summary>Flights out</summary>
-            <label class="editor-row" for="render-flights-out">
-              <span>Render</span>
-              <input id="render-flights-out" type="checkbox" checked />
-            </label>
-            <label class="editor-row" for="flight-out-stop-count">
-              <span>Stopovers</span>
-              <input id="flight-out-stop-count" type="number" min="0" max="8" value="3" />
-            </label>
-            <div id="flight-out-stop-selects" class="flight-stop-selects"></div>
-            <button id="apply-flight-out-editor" type="button" class="reset-view-btn">Apply flights out</button>
-          </details>
-          <p id="flight-editor-status" class="flight-editor-status" aria-live="polite"></p>
-        </div>
-        <button id="reset-view" type="button" class="reset-view-btn">Reset view</button>
+            <div class="legend-item"><span class="swatch track"></span> Cruise Route</div>
+            <div class="legend-item legend-flight"><span class="swatch flight-in"></span> Flights in</div>
+            <div class="legend-item"><span class="swatch charter-flight"></span> Charter flight</div>
+            <div class="legend-item legend-flight"><span class="swatch flight-out"></span> Flights out</div>
+            <div class="legend-item"><span class="swatch stop"></span> Port calls</div>
+            <div class="legend-item"><span class="swatch poi"></span> Antarctic POIs</div>
+            <div class="legend-item"><span class="swatch start"></span> Start</div>
+            <div class="legend-item"><span class="swatch end"></span> End</div>
+          </div>
+          <label class="toggle-row" for="toggle-flat-map">
+            <input id="toggle-flat-map" type="checkbox" />
+            <span>Flat map</span>
+          </label>
+          <button id="reset-view" type="button" class="reset-view-btn">Reset view</button>
         </div>
       </details>
+
+      <aside id="flight-drawer" class="flight-drawer" aria-label="Trip controls">
+        <button
+          id="flight-drawer-toggle"
+          class="drawer-toggle"
+          type="button"
+          aria-controls="flight-drawer-content"
+          aria-expanded="false"
+          aria-label="Expand controls"
+        >
+          ⚙
+        </button>
+        <div id="flight-drawer-content" class="flight-drawer-content">
+          <div class="flight-editor" aria-label="Flight editor">
+            <p class="flight-editor-title">Edit flights</p>
+            <details open>
+              <summary>Flights in</summary>
+              <label class="editor-row" for="render-flights-in">
+                <span>Render</span>
+                <input id="render-flights-in" type="checkbox" checked />
+              </label>
+              <label class="editor-row" for="flight-in-stop-count">
+                <span>Stopovers</span>
+                <input id="flight-in-stop-count" type="number" min="0" max="8" value="3" />
+              </label>
+              <div id="flight-in-stop-selects" class="flight-stop-selects"></div>
+              <button id="apply-flight-in-editor" type="button" class="reset-view-btn">Apply flights in</button>
+            </details>
+            <details>
+              <summary>Flights out</summary>
+              <label class="editor-row" for="render-flights-out">
+                <span>Render</span>
+                <input id="render-flights-out" type="checkbox" checked />
+              </label>
+              <label class="editor-row" for="flight-out-stop-count">
+                <span>Stopovers</span>
+                <input id="flight-out-stop-count" type="number" min="0" max="8" value="3" />
+              </label>
+              <div id="flight-out-stop-selects" class="flight-stop-selects"></div>
+              <button id="apply-flight-out-editor" type="button" class="reset-view-btn">Apply flights out</button>
+            </details>
+            <p id="flight-editor-status" class="flight-editor-status" aria-live="polite"></p>
+          </div>
+        </div>
+      </aside>
       <div id="map"></div>
     </div>
   </body>

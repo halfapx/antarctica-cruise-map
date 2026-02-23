@@ -30,6 +30,8 @@ setWorkerUrl(maplibreglWorkerUrl);
 applyColorVariables(mapColors);
 
 const resetViewButton = document.getElementById("reset-view");
+const flightDrawer = document.getElementById("flight-drawer") as HTMLElement | null;
+const flightDrawerToggle = document.getElementById("flight-drawer-toggle") as HTMLButtonElement | null;
 const flatMapToggle = document.getElementById("toggle-flat-map") as HTMLInputElement | null;
 const renderFlightsInToggle = document.getElementById("render-flights-in") as HTMLInputElement | null;
 const renderFlightsOutToggle = document.getElementById("render-flights-out") as HTMLInputElement | null;
@@ -45,6 +47,22 @@ const MIN_EDITOR_STOPOVERS = 0;
 const MAX_EDITOR_STOPOVERS = 8;
 
 const airportByCode = new globalThis.Map(majorAirports.map((airport) => [airport.code, airport]));
+
+if (flightDrawer && flightDrawerToggle) {
+  const setDrawerExpanded = (isExpanded: boolean) => {
+    flightDrawer.classList.toggle("is-collapsed", !isExpanded);
+    flightDrawerToggle.setAttribute("aria-expanded", String(isExpanded));
+    flightDrawerToggle.setAttribute("aria-label", isExpanded ? "Collapse controls" : "Expand controls");
+    flightDrawerToggle.textContent = "⚙";
+  };
+
+  setDrawerExpanded(false);
+
+  flightDrawerToggle.addEventListener("click", () => {
+    const isExpanded = flightDrawerToggle.getAttribute("aria-expanded") === "true";
+    setDrawerExpanded(!isExpanded);
+  });
+}
 
 const cloneStop = (stop: FlightStop): FlightStop => ({
   ...stop,
