@@ -1,12 +1,11 @@
-import maplibregl from 'maplibre-gl';
+import { Map, NavigationControl, Popup, setWorkerUrl } from 'maplibre-gl/dist/maplibre-gl-csp-dev.js';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './style.css';
 import type { Feature, FeatureCollection, Geometry } from 'geojson';
-import maplibreglWorkerUrl from 'maplibre-gl/dist/maplibre-gl-csp-worker.js?url';
+import type { GeoJSONSource } from 'maplibre-gl/dist/maplibre-gl-csp-dev.js';
+import maplibreglWorkerUrl from 'maplibre-gl/dist/maplibre-gl-csp-worker-dev.js?url';
 
-const { Map, NavigationControl, Popup } = maplibregl;
-
-maplibregl.setWorkerUrl(maplibreglWorkerUrl);
+setWorkerUrl(maplibreglWorkerUrl);
 
 const isPointCoordinates = (value: unknown): value is [number, number] =>
   Array.isArray(value) &&
@@ -18,12 +17,28 @@ const isLineCoordinates = (value: unknown): value is [number, number][] =>
   Array.isArray(value) && value.every((item) => isPointCoordinates(item));
 
 const resetViewButton = document.getElementById('reset-view');
+const flightsToggle = document.getElementById('toggle-flights') as HTMLInputElement | null;
+const flightLegendItems = Array.from(document.querySelectorAll('.legend-flight')) as HTMLElement[];
+
+const minimapContainer = document.createElement('div');
+minimapContainer.id = 'minimap';
+minimapContainer.className = 'minimap minimap-hidden';
+document.body.appendChild(minimapContainer);
 
 const map = new Map({
   container: 'map',
   style: 'https://tiles.openfreemap.org/styles/bright',
   center: [-62, -63],
   zoom: 3.2
+});
+
+const minimap = new Map({
+  container: 'minimap',
+  style: 'https://tiles.openfreemap.org/styles/bright',
+  center: [-62, -63],
+  zoom: 3,
+  interactive: false,
+  attributionControl: false
 });
 
 const FLAT_MAP_ZOOM_THRESHOLD = 5.25;
@@ -52,6 +67,54 @@ const syncProjectionToZoom = () => {
   setMapProjection(projectionType);
 };
 
+const MINIMAP_ZOOM_THRESHOLD = 5.5;
+
+const isAntarcticPeninsulaFocus = () => {
+  const center = map.getCenter();
+  const inPeninsulaBounds =
+    center.lng >= -71 && center.lng <= -54 && center.lat >= -67.5 && center.lat <= -60;
+  return map.getZoom() >= MINIMAP_ZOOM_THRESHOLD && inPeninsulaBounds;
+};
+
+const syncMinimapVisibility = () => {
+  minimapContainer.classList.toggle('minimap-hidden', !isAntarcticPeninsulaFocus());
+};
+
+const toViewportPolygon = () => {
+  const bounds = map.getBounds();
+  const west = bounds.getWest();
+  const east = bounds.getEast();
+  const south = bounds.getSouth();
+  const north = bounds.getNorth();
+
+  return {
+    type: 'Feature',
+    properties: {},
+    geometry: {
+      type: 'Polygon',
+      coordinates: [[[west, south], [west, north], [east, north], [east, south], [west, south]]]
+    }
+  };
+};
+
+const syncMinimapViewport = () => {
+  const source = minimap.getSource('minimap-viewport') as GeoJSONSource | undefined;
+  if (!source) {
+    return;
+  }
+  source.setData(toViewportPolygon());
+};
+
+const syncMinimapState = () => {
+  minimap.easeTo({
+    center: map.getCenter(),
+    duration: 0,
+    essential: true
+  });
+  syncMinimapViewport();
+  syncMinimapVisibility();
+};
+
 map.addControl(new NavigationControl(), 'top-right');
 
 const loadGeoJson = async (url: string): Promise<FeatureCollection<Geometry, Record<string, unknown>>> => {
@@ -69,6 +132,38 @@ map.on('load', () => {
   syncProjectionToZoom();
   map.on('zoom', syncProjectionToZoom);
   map.on('styledata', syncProjectionToZoom);
+
+  minimap.on('load', () => {
+    minimap.addSource('minimap-viewport', {
+      type: 'geojson',
+      data: toViewportPolygon()
+    });
+
+    minimap.addLayer({
+      id: 'minimap-viewport-fill',
+      type: 'fill',
+      source: 'minimap-viewport',
+      paint: {
+        'fill-color': '#38bdf8',
+        'fill-opacity': 0.12
+      }
+    });
+
+    minimap.addLayer({
+      id: 'minimap-viewport-outline',
+      type: 'line',
+      source: 'minimap-viewport',
+      paint: {
+        'line-color': '#0ea5e9',
+        'line-width': 1.5
+      }
+    });
+
+    syncMinimapState();
+  });
+
+  map.on('move', syncMinimapState);
+  map.on('zoom', syncMinimapState);
 
   map.addSource('trip', { type: 'geojson', data });
   map.addSource('flight', { type: 'geojson', data: flightData });
@@ -210,6 +305,25 @@ map.on('load', () => {
   const popup = new Popup({ closeButton: false, closeOnClick: false });
   let isPopupPinned = false;
 
+  const flightLayerIds = ['flight-track', 'flight-points', 'flight-out-track', 'flight-out-points'];
+  const setFlightLayersVisibility = (isVisible: boolean) => {
+    const visibility: 'visible' | 'none' = isVisible ? 'visible' : 'none';
+    flightLayerIds.forEach((layerId) => {
+      if (map.getLayer(layerId)) {
+        map.setLayoutProperty(layerId, 'visibility', visibility);
+      }
+    });
+
+    flightLegendItems.forEach((item) => {
+      item.style.display = isVisible ? 'flex' : 'none';
+    });
+
+    if (!isVisible) {
+      isPopupPinned = false;
+      popup.remove();
+    }
+  };
+
   const getPopupHtml = (feature: Feature<Geometry, Record<string, unknown>>) => {
     const props = feature.properties ?? {};
     const title = (props.Name as string) || (props.Port_Name as string) || 'Stop';
@@ -309,28 +423,35 @@ map.on('load', () => {
     popup.remove();
   });
 
-  let boundsWest = Infinity;
-  let boundsSouth = Infinity;
-  let boundsEast = -Infinity;
-  let boundsNorth = -Infinity;
+  const createBoundsAccumulator = () => ({
+    west: Infinity,
+    south: Infinity,
+    east: -Infinity,
+    north: -Infinity
+  });
 
-  const extendBounds = (coordinate: [number, number]) => {
+  const tripBounds = createBoundsAccumulator();
+  const allBounds = createBoundsAccumulator();
+
+  const extendBounds = (target: ReturnType<typeof createBoundsAccumulator>, coordinate: [number, number]) => {
     const [lng, lat] = coordinate;
-    if (lng < boundsWest) boundsWest = lng;
-    if (lat < boundsSouth) boundsSouth = lat;
-    if (lng > boundsEast) boundsEast = lng;
-    if (lat > boundsNorth) boundsNorth = lat;
+    if (lng < target.west) target.west = lng;
+    if (lat < target.south) target.south = lat;
+    if (lng > target.east) target.east = lng;
+    if (lat > target.north) target.north = lat;
   };
 
-  const hasBounds = () =>
-    Number.isFinite(boundsWest) &&
-    Number.isFinite(boundsSouth) &&
-    Number.isFinite(boundsEast) &&
-    Number.isFinite(boundsNorth);
+  const hasBounds = (target: ReturnType<typeof createBoundsAccumulator>) =>
+    Number.isFinite(target.west) &&
+    Number.isFinite(target.south) &&
+    Number.isFinite(target.east) &&
+    Number.isFinite(target.north);
 
-  const toBoundsArray = (): [[number, number], [number, number]] => [
-    [boundsWest, boundsSouth],
-    [boundsEast, boundsNorth]
+  const toBoundsArray = (
+    target: ReturnType<typeof createBoundsAccumulator>
+  ): [[number, number], [number, number]] => [
+    [target.west, target.south],
+    [target.east, target.north]
   ];
 
   data.features.forEach((feature) => {
@@ -339,16 +460,30 @@ map.on('load', () => {
       return;
     }
     if (geometry.type === 'Point' && isPointCoordinates(geometry.coordinates)) {
-      extendBounds(geometry.coordinates);
+      extendBounds(tripBounds, geometry.coordinates);
+      extendBounds(allBounds, geometry.coordinates);
     }
     if (geometry.type === 'LineString' && isLineCoordinates(geometry.coordinates)) {
-      geometry.coordinates.forEach((coordinate) => extendBounds(coordinate));
+      geometry.coordinates.forEach((coordinate) => {
+        extendBounds(tripBounds, coordinate);
+        extendBounds(allBounds, coordinate);
+      });
     }
   });
 
+  const getActiveBounds = () => (flightsToggle?.checked === false ? tripBounds : allBounds);
+
+  const fitToActiveBounds = (duration: number) => {
+    const activeBounds = getActiveBounds();
+    if (hasBounds(activeBounds)) {
+      map.fitBounds(toBoundsArray(activeBounds), { padding: 60, duration });
+      return true;
+    }
+    return false;
+  };
+
   const resetToInitialView = () => {
-    if (hasBounds()) {
-      map.fitBounds(toBoundsArray(), { padding: 60, duration: 900 });
+    if (fitToActiveBounds(900)) {
       return;
     }
 
@@ -365,7 +500,7 @@ map.on('load', () => {
     flightLineFeature?.geometry?.type === 'LineString' &&
     isLineCoordinates(flightLineFeature.geometry.coordinates)
   ) {
-    flightLineFeature.geometry.coordinates.forEach((coordinate) => extendBounds(coordinate));
+    flightLineFeature.geometry.coordinates.forEach((coordinate) => extendBounds(allBounds, coordinate));
   }
 
   const flightOutLineFeature = flightOutData.features.find((feature) => feature.geometry?.type === 'LineString');
@@ -373,14 +508,22 @@ map.on('load', () => {
     flightOutLineFeature?.geometry?.type === 'LineString' &&
     isLineCoordinates(flightOutLineFeature.geometry.coordinates)
   ) {
-    flightOutLineFeature.geometry.coordinates.forEach((coordinate) => extendBounds(coordinate));
+    flightOutLineFeature.geometry.coordinates.forEach((coordinate) => extendBounds(allBounds, coordinate));
   }
 
-  if (hasBounds()) {
-    map.fitBounds(toBoundsArray(), { padding: 60, duration: 0 });
-  }
+  fitToActiveBounds(0);
 
   if (resetViewButton) {
     resetViewButton.addEventListener('click', resetToInitialView);
   }
+
+  if (flightsToggle) {
+    setFlightLayersVisibility(flightsToggle.checked);
+    flightsToggle.addEventListener('change', () => {
+      setFlightLayersVisibility(flightsToggle.checked);
+      fitToActiveBounds(700);
+    });
+  }
+
+  syncMinimapVisibility();
 });

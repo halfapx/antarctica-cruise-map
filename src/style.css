@@ -21,6 +21,25 @@ body {
   z-index: 0;
 }
 
+.minimap {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  width: 280px;
+  height: 190px;
+  z-index: 1000;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  transition: opacity 160ms ease;
+}
+
+.minimap-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
 .panel {
   position: fixed;
   top: 16px;
@@ -55,6 +74,19 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.toggle-row {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+  color: #e5e7eb;
+}
+
+.toggle-row input {
+  margin: 0;
 }
 
 .reset-view-btn {
