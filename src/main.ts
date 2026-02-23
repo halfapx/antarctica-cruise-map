@@ -207,6 +207,26 @@ map.on('load', () => {
   });
 
   map.addLayer({
+    id: 'flight-point-labels',
+    type: 'symbol',
+    source: 'flight',
+    filter: ['==', ['geometry-type'], 'Point'],
+    minzoom: 6.8,
+    layout: {
+      'text-field': ['coalesce', ['get', 'Name'], ['get', 'Port_Name'], ''],
+      'text-size': ['interpolate', ['linear'], ['zoom'], 8, 10, 12, 12],
+      'text-anchor': 'left',
+      'text-offset': [0.9, 0],
+      'text-allow-overlap': false
+    },
+    paint: {
+      'text-color': '#111827',
+      'text-halo-color': '#ffffff',
+      'text-halo-width': 1.2
+    }
+  });
+
+  map.addLayer({
     id: 'flight-out-track',
     type: 'line',
     source: 'flight-out',
@@ -240,6 +260,26 @@ map.on('load', () => {
       'circle-radius': 5,
       'circle-stroke-color': '#ffffff',
       'circle-stroke-width': 1.2
+    }
+  });
+
+  map.addLayer({
+    id: 'flight-out-point-labels',
+    type: 'symbol',
+    source: 'flight-out',
+    filter: ['==', ['geometry-type'], 'Point'],
+    minzoom: 6.8,
+    layout: {
+      'text-field': ['coalesce', ['get', 'Name'], ['get', 'Port_Name'], ''],
+      'text-size': ['interpolate', ['linear'], ['zoom'], 8, 10, 12, 12],
+      'text-anchor': 'left',
+      'text-offset': [0.9, 0],
+      'text-allow-overlap': false
+    },
+    paint: {
+      'text-color': '#111827',
+      'text-halo-color': '#ffffff',
+      'text-halo-width': 1.2
     }
   });
 
@@ -302,10 +342,37 @@ map.on('load', () => {
     }
   });
 
+  map.addLayer({
+    id: 'trip-point-labels',
+    type: 'symbol',
+    source: 'trip',
+    filter: ['==', ['geometry-type'], 'Point'],
+    minzoom: 5.2,
+    layout: {
+      'text-field': ['coalesce', ['get', 'Name'], ['get', 'Port_Name'], ''],
+      'text-size': ['interpolate', ['linear'], ['zoom'], 8, 10, 12, 12],
+      'text-anchor': 'left',
+      'text-offset': [0.9, 0],
+      'text-allow-overlap': false
+    },
+    paint: {
+      'text-color': '#111827',
+      'text-halo-color': '#ffffff',
+      'text-halo-width': 1.2
+    }
+  });
+
   const popup = new Popup({ closeButton: false, closeOnClick: false });
   let isPopupPinned = false;
 
-  const flightLayerIds = ['flight-track', 'flight-points', 'flight-out-track', 'flight-out-points'];
+  const flightLayerIds = [
+    'flight-track',
+    'flight-points',
+    'flight-point-labels',
+    'flight-out-track',
+    'flight-out-points',
+    'flight-out-point-labels'
+  ];
   const setFlightLayersVisibility = (isVisible: boolean) => {
     const visibility: 'visible' | 'none' = isVisible ? 'visible' : 'none';
     flightLayerIds.forEach((layerId) => {

@@ -1040,7 +1040,7 @@
           },
           "properties": {
             "Feature_type": "port_call",
-            "Name": "stop0",
+            "Name": "Stop 1: Half-Moon Island Landing",
             "Port_Name": "",
             "Country": "Antarctica"
           }
@@ -1053,7 +1053,7 @@
           },
           "properties": {
             "Feature_type": "port_call",
-            "Name": "stop1",
+            "Name": "Stop 2: D’Haintaut Island Landing Mikkelsen Harbour",
             "Port_Name": "",
             "Country": "Antarctica"
           }
@@ -1066,7 +1066,7 @@
           },
           "properties": {
             "Feature_type": "port_call",
-            "Name": "stop2",
+            "Name": "Stop 3: Foyn Harbour & Guvernøren Wreck Zodiac Cruise",
             "Port_Name": "",
             "Country": "Antarctica"
           }
@@ -1079,7 +1079,7 @@
           },
           "properties": {
             "Feature_type": "port_call",
-            "Name": "stop3",
+            "Name": "Stop 4: Polar Plunge Time",
             "Port_Name": "",
             "Country": "Antarctica"
           }
@@ -1092,7 +1092,7 @@
           },
           "properties": {
             "Feature_type": "port_call",
-            "Name": "stop4",
+            "Name": "Stop 5: Paradise Bay Zodiac Cruise",
             "Port_Name": "",
             "Country": "Antarctica"
           }
@@ -1105,7 +1105,7 @@
           },
           "properties": {
             "Feature_type": "port_call",
-            "Name": "stop5",
+            "Name": "Stop 6: Petermann Island Landing",
             "Port_Name": "",
             "Country": "Antarctica"
           }
@@ -1118,7 +1118,7 @@
           },
           "properties": {
             "Feature_type": "port_call",
-            "Name": "stop6",
+            "Name": "Stop 7: Petermann Island Landing (now James is happy)",
             "Port_Name": "",
             "Country": "**Unknown**"
           }
@@ -1131,7 +1131,7 @@
           },
           "properties": {
             "Feature_type": "port_call",
-            "Name": "stop7",
+            "Name": "Stop 8: Yalour Island Landing/Zodiac Mix",
             "Port_Name": "",
             "Country": "Antarctica"
           }
@@ -1144,7 +1144,7 @@
           },
           "properties": {
             "Feature_type": "port_call",
-            "Name": "stop8",
+            "Name": "Stop 9: Yalour Island Landing/Zodiac Mix (was it James again?)",
             "Port_Name": "",
             "Country": "Antarctica"
           }
@@ -1157,7 +1157,7 @@
           },
           "properties": {
             "Feature_type": "port_call",
-            "Name": "stop9",
+            "Name": "Stop 10: Cape Tuxen Continental Landing",
             "Port_Name": "",
             "Country": "**Unknown**"
           }
@@ -1170,7 +1170,7 @@
           },
           "properties": {
             "Feature_type": "port_call",
-            "Name": "stop10",
+            "Name": "Stop 11: Argentine Islands Area Cruise and Wordie House Landing",
             "Port_Name": "",
             "Country": "Antarctica"
           }
@@ -1183,7 +1183,7 @@
           },
           "properties": {
             "Feature_type": "port_call",
-            "Name": "stop11",
+            "Name": "Stop 12: Pléneau Island Area Zodiac Cruise",
             "Port_Name": "",
             "Country": "Antarctica"
           }
@@ -1196,9 +1196,9 @@
           },
           "properties": {
             "Feature_type": "port_call",
-            "Name": "stop12",
+            "Name": "Stop 13: Cuverville Island Landing",
             "Port_Name": "",
-            "Country": "**Unknown**"
+            "Country": "Antarctica"
           }
         }
       ]
